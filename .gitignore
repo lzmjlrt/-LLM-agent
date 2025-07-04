@@ -1,0 +1,21 @@
+# filepath: e:\LLM_Study\Review_rebuttle\.gitignore
+# 忽略本地向量数据库索引
+emb/
+
+# 忽略 Python 缓存
+__pycache__/
+*.pyc
+
+# 忽略虚拟环境文件夹
+.venv/
+venv/
+env/
+
+# 忽略敏感信息文件
+.env
+
+# 忽略 VS Code 编辑器配置
+.vscode/
+
+#忽略我的草稿replt_agent.py
+replt_agent.py
