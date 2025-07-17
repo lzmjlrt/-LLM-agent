@@ -19,6 +19,11 @@
 - **数据模型**: Pydantic
 - **环境管理**: python-dotenv
 
+## 示意图
+<img width="1584" height="854" alt="ca6afb01af6329c6a7f322672135b3b0" src="https://github.com/user-attachments/assets/2d864ea6-29e6-4601-841b-e3d544e5d2f1" />
+
+
+
 ## 📂 项目结构
 
 ```
