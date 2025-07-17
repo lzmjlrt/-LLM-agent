@@ -22,7 +22,7 @@ class ReviewQuality(BaseModel):
     quality: str = Field(description="是否是正常评论，或者是默认的回复内容，返回值为normal或者default")
     emotion: str = Field(description="情感倾向。只返回正面，负面，中性这三个词")
     key_information: List[str] = Field(description="提取评价里用户对产品不会用的关键信息，返回一个列表，列表里是用户对产品的关键信息")
-
+    require_tool_use: bool = Field(description="判读用户的评论是否需要调用工具来获取更多信息，True表示需要，False表示不需要")
 structred_llm = llm.with_structured_output(ReviewQuality)
 
 # 2. 专门用于负面评论的工具调用 Agent
@@ -70,10 +70,15 @@ def route_after_analysis(state: AgentState) -> str:
     """决策路由"""
     print("--- [决策] 正在根据分析结果进行路由... ---")
     analysis_result = state["review_quality"]
+    if analysis_result.require_tool_use:
+        print("--- [决策结果] -> 需要调用工具 (路由至负面评论处理节点) ---")
+        return "generate_negative_reply"
     if analysis_result.quality == "default":
         print("--- [决策结果] -> 无效评论 ---")
         return "generate_default_reply"
-    elif analysis_result.emotion == "负面":
+        
+    # 3. 第三优先级：根据情感判断
+    if analysis_result.emotion == "负面":
         print("--- [决策结果] -> 负面评论 ---")
         return "generate_negative_reply"
     else:
