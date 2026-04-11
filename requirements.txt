@@ -1,0 +1,12 @@
+streamlit==1.56.0
+langchain==1.2.15
+langgraph==1.1.6
+langchain-openai==1.1.12
+langchain-deepseek==1.0.1
+langchain-community==0.4.1
+openai==2.31.0
+dashscope==1.25.16
+faiss-cpu==1.13.2
+pydantic==2.12.5
+python-dotenv==1.2.2
+pypdf==6.10.0

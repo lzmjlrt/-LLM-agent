@@ -8,7 +8,7 @@
 - **动态路由**: 使用 LangGraph 的条件路由，将不同类型的评论分发给不同的处理逻辑。
 - **RAG 增强**: 对于提及“产品不会用”的负面评论，能自动从本地的 PDF 说明书 (`ES.pdf`) 中检索相关信息，并整合到回复中。
 - **工具调用**: 在负面评论处理流程中，Agent 被授权可以自主决定是否调用 `read_instructions` 工具来查询知识库。
-- **模块化设计**: 代码结构清晰，分为配置、RAG 设置、图工作流和主入口，易于维护和扩展。
+- **模块化设计**: 代码结构按应用层、工作流层、RAG 层和工厂层拆分，便于维护和扩展。
 
 ## 🛠️ 技术栈
 
@@ -30,10 +30,18 @@
 .
 ├── agent/
 │   ├── __init__.py
-│   ├── config.py           # 配置文件 (API密钥, 路径, 模型名称)
-│   ├── rag_setup.py        # RAG设置 (加载PDF, 创建向量库, 定义工具)
-│   ├── graph_workflow.py   # 核心工作流 (定义状态, 节点, 构建图)
-│   └── main.py             # 项目入口
+│   ├── main.py                # 运行入口（启动 Streamlit）
+│   ├── __main__.py            # 包入口（python -m agent）
+│   ├── config.py              # 配置中心（模型名、路径、环境变量）
+│   ├── graph_workflow.py      # 兼容入口，导出 create_graph
+│   ├── app/chat_app.py        # Streamlit UI 与会话编排
+│   ├── factories/model_factory.py # LLM 初始化工厂
+│   ├── services/chat_service.py # 应用服务层（初始化与调用）
+│   ├── workflow/              # 工作流层（schema/nodes/router/graph）
+│   └── rag/                   # RAG 层（embeddings/vector_store/tools）
+├── tests/
+│   ├── test_workflow_router.py
+│   └── test_graph_smoke.py
 ├── .env                    # (需要手动创建) 存放API密钥
 ├── .gitignore              # Git忽略文件
 ├── ES.pdf                  # 产品说明书知识库
@@ -52,10 +60,11 @@
 2.  **安装依赖**
     建议您先创建一个虚拟环境。然后运行以下命令安装所有必需的库：
     ```bash
+    # Windows PowerShell (示例)
+    .\project\Scripts\Activate.ps1
     pip install -r requirements.txt
     ```
-    *如果 `requirements.txt` 文件不存在，您可以通过 `pip freeze > requirements.txt` 命令生成。*
-    主要依赖包括: `langchain`, `langgraph`, `faiss-cpu`, `pydantic`, `python-dotenv`, `langchain-community`, `pypdf`, `dashscope`。
+    主要依赖包括: `langchain`, `langgraph`, `langchain-openai`, `langchain-deepseek`, `faiss-cpu`, `streamlit`, `pydantic`, `python-dotenv`, `langchain-community`, `pypdf`, `dashscope`。
 
 3.  **配置API密钥**
     在项目根目录下，创建一个名为 `.env` 的文件。这个文件用于存放您的私密信息，不会被上传到 GitHub。
@@ -76,9 +85,21 @@
 2.  **执行命令**:
     在项目根目录下打开终端，运行以下命令：
     ```bash
-    python agent/main.py
+    python -m agent.main
     ```
-    程序将执行 `main.py` 中预设的几个测试用例，并打印出 Agent 的完整思考流程和最终回复。
+    程序将启动 Streamlit 页面，在左侧完成模型与知识库配置后即可开始对话。
+
+## ✅ 测试命令
+
+1.  **运行全部测试**
+    ```bash
+    python -m unittest discover -s tests -p "test_*.py"
+    ```
+
+2.  **运行单个测试**
+    ```bash
+    python -m unittest tests.test_workflow_router.TestRouteAfterAnalysis.test_route_to_default_for_default_quality
+    ```
 
 ## 🧠 工作流程
 

@@ -1,6 +1,8 @@
 # filepath: e:\LLM_Study\Review_rebuttle\.gitignore
 # 忽略本地向量数据库索引
 emb/
+temp/
+agent/temp/
 
 # 忽略 Python 缓存
 __pycache__/
@@ -19,3 +21,6 @@ env/
 
 #忽略我的草稿replt_agent.py
 replt_agent.py
+.github/*
+#!.github/copilot-instructions.md
+project/

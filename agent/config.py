@@ -1,17 +1,27 @@
 import os
 from dotenv import load_dotenv
+
 load_dotenv()
+
 # --- API and Keys ---
-DEEPSEEK_API_KEY = "输入你的deepseek的api"
-DEEPSEEK_BASE_URL = "https://api.deepseek.com"
-DASHSCOPE_API_KEY = "输入你的 DashScope API Key"
+DEEPSEEK_API_KEY = os.getenv("DEEPSEEK_API_KEY", "")
+DEEPSEEK_BASE_URL = os.getenv("DEEPSEEK_BASE_URL", "https://api.deepseek.com")
+DASHSCOPE_API_KEY = os.getenv("DASHSCOPE_API_KEY", "")
+OPENAI_API_KEY = os.getenv("OPENAI_API_KEY", "")
 
 # --- Models ---
-LLM_MODEL_NAME = "deepseek-chat"
-EMBEDDING_MODEL_NAME = "text-embedding-v3"
-#这里用的是阿里的 DashScope Embeddings
+DEEPSEEK_MODEL_NAME = "deepseek-chat"
+OPENAI_CHAT_MODEL_NAME = "gpt-4o"
+DASHSCOPE_EMBEDDING_MODEL_NAME = "text-embedding-v3"
+OPENAI_EMBEDDING_MODEL_NAME = "text-embedding-3-small"
+
 # --- File Paths ---
-# 使用 os.path.join 确保路径在不同操作系统下都正确
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__))) # 获取项目根目录 Review_rebuttle
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 PDF_PATH = os.path.join(BASE_DIR, "ES.pdf")
 FAISS_INDEX_PATH = os.path.join(BASE_DIR, "emb")
+TEMP_DIR_NAME = "temp"
+DEFAULT_SESSION_FAISS_DIR = "faiss_index"
+TEMP_DIR_PATH = os.path.join(BASE_DIR, TEMP_DIR_NAME)
+FAISS_CACHE_DIR_NAME = "faiss_cache"
+FAISS_CACHE_DIR_PATH = os.path.join(TEMP_DIR_PATH, FAISS_CACHE_DIR_NAME)
+LOG_LEVEL = os.getenv("LOG_LEVEL", "INFO").upper()
