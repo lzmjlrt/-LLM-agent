@@ -1,4 +1,5 @@
 import streamlit as st
+import uuid
 
 from agent.errors import AgentInitializationError, AgentRuntimeError, ConfigValidationError
 from agent.factories.config_validation import validate_runtime_config
@@ -50,6 +51,7 @@ def run_streamlit_app():
                     )
                     st.session_state.app = app
                     st.session_state.configured = True
+                    st.session_state.thread_id = str(uuid.uuid4())
                     st.success("系统初始化成功！可以开始聊天了。")
                     st.session_state.messages = [{"role": "assistant", "content": "系统已就绪，请问有什么可以帮助您的吗？"}]
             except ConfigValidationError as err:
@@ -74,8 +76,12 @@ def run_streamlit_app():
         with st.chat_message("assistant"):
             with st.spinner("思考中..."):
                 app = st.session_state.app
+                thread_id = st.session_state.get("thread_id")
+                if not thread_id:
+                    thread_id = str(uuid.uuid4())
+                    st.session_state.thread_id = thread_id
                 try:
-                    response, _request_id = invoke_agent(app, prompt)
+                    response, _request_id = invoke_agent(app, prompt, thread_id)
                     st.write(response)
                 except AgentRuntimeError as runtime_err:
                     _render_error(runtime_err)

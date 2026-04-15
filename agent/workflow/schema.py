@@ -19,3 +19,6 @@ class AgentState(TypedDict):
     review_quality: ReviewQuality
     finally_reply: str
     request_id: NotRequired[str]
+    tool_decision_reason: NotRequired[str]
+    needs_human_review: NotRequired[bool]
+    human_review_reason: NotRequired[str]

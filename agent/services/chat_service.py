@@ -2,6 +2,7 @@ import logging
 import os
 import uuid
 
+from langgraph.checkpoint.memory import InMemorySaver
 from openai import APIError, APITimeoutError, AuthenticationError, BadRequestError, RateLimitError
 
 from agent import config
@@ -55,20 +56,30 @@ def initialize_agent_runtime(
         raise AgentInitializationError("初始化失败：知识库构建或加载失败。", str(err)) from err
 
     tools = create_rag_tool(vector_store)
-    return create_graph(llm, tools)
+    checkpointer = InMemorySaver()
+    return create_graph(llm, tools, checkpointer=checkpointer)
 
 
-def invoke_agent(app, user_prompt: str):
+def invoke_agent(app, user_prompt: str, thread_id: str):
     request_id = str(uuid.uuid4())
-    logger.info("开始处理请求 request_id=%s", request_id)
+    logger.info("开始处理请求 request_id=%s thread_id=%s", request_id, thread_id)
     try:
-        result = app.invoke({"original_review": user_prompt, "request_id": request_id})
+        result = app.invoke(
+            {"original_review": user_prompt, "request_id": request_id},
+            config={"configurable": {"thread_id": thread_id}},
+        )
         reply = result.get("finally_reply", "抱歉，我暂时无法生成回复，请稍后重试。")
-        logger.info("请求完成 request_id=%s", request_id)
+        logger.info("请求完成 request_id=%s thread_id=%s", request_id, thread_id)
         return reply, request_id
     except (BadRequestError, AuthenticationError, RateLimitError, APITimeoutError, APIError) as err:
-        logger.exception("模型服务错误 request_id=%s", request_id)
-        raise AgentRuntimeError("请求模型服务失败，请检查模型配置或稍后重试。", f"request_id={request_id}\n{err}") from err
+        logger.exception("模型服务错误 request_id=%s thread_id=%s", request_id, thread_id)
+        raise AgentRuntimeError(
+            "请求模型服务失败，请检查模型配置或稍后重试。",
+            f"request_id={request_id}\nthread_id={thread_id}\n{err}",
+        ) from err
     except (ValueError, RuntimeError) as err:
-        logger.exception("业务处理错误 request_id=%s", request_id)
-        raise AgentRuntimeError("处理请求时发生错误。", f"request_id={request_id}\n{err}") from err
+        logger.exception("业务处理错误 request_id=%s thread_id=%s", request_id, thread_id)
+        raise AgentRuntimeError(
+            "处理请求时发生错误。",
+            f"request_id={request_id}\nthread_id={thread_id}\n{err}",
+        ) from err

@@ -6,7 +6,7 @@ from agent.workflow.router import route_after_analysis
 from agent.workflow.schema import AgentState, ReviewQuality
 
 
-def create_graph(llm, tools):
+def create_graph(llm, tools, checkpointer=None):
     """根据传入的 LLM 和工具构建并编译 LangGraph。"""
     structred_llm = llm.with_structured_output(ReviewQuality, strict=True)
     agent_executor = create_react_agent(llm, tools)
@@ -32,4 +32,4 @@ def create_graph(llm, tools):
     workflow.add_edge("generate_positive_reply", END)
     workflow.add_edge("generate_default_reply", END)
 
-    return workflow.compile()
+    return workflow.compile(checkpointer=checkpointer)
