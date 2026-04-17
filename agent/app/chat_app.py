@@ -41,6 +41,7 @@ def run_streamlit_app():
                     embedding_provider=embedding_provider,
                     embedding_api_key=embedding_api_key,
                 )
+                thread_id = str(uuid.uuid4())
                 with st.spinner("正在初始化系统，请稍候..."):
                     app = initialize_agent_runtime(
                         llm_provider=llm_provider,
@@ -48,10 +49,11 @@ def run_streamlit_app():
                         uploaded_file=uploaded_file,
                         embedding_provider=embedding_provider,
                         embedding_api_key=embedding_api_key,
+                        thread_id=thread_id,
                     )
                     st.session_state.app = app
                     st.session_state.configured = True
-                    st.session_state.thread_id = str(uuid.uuid4())
+                    st.session_state.thread_id = thread_id
                     st.success("系统初始化成功！可以开始聊天了。")
                     st.session_state.messages = [{"role": "assistant", "content": "系统已就绪，请问有什么可以帮助您的吗？"}]
             except ConfigValidationError as err:

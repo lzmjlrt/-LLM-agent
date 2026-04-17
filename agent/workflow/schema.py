@@ -20,5 +20,11 @@ class AgentState(TypedDict):
     finally_reply: str
     request_id: NotRequired[str]
     tool_decision_reason: NotRequired[str]
+    query_intent: NotRequired[str]
+    intent_reason: NotRequired[str]
+    needs_additional_info: NotRequired[bool]
+    out_of_scope: NotRequired[bool]
     needs_human_review: NotRequired[bool]
     human_review_reason: NotRequired[str]
+    answer_valid: NotRequired[bool]
+    answer_validation_reason: NotRequired[str]

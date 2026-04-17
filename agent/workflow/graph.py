@@ -17,6 +17,7 @@ def create_graph(llm, tools, checkpointer=None):
     workflow.add_node("generate_negative_reply", nodes["generate_negative_reply"])
     workflow.add_node("generate_positive_reply", nodes["generate_positive_reply"])
     workflow.add_node("generate_default_reply", nodes["generate_default_reply"])
+    workflow.add_node("validate_reply", nodes["validate_reply"])
 
     workflow.add_edge(START, "analyze_review")
     workflow.add_conditional_edges(
@@ -28,8 +29,9 @@ def create_graph(llm, tools, checkpointer=None):
             "generate_default_reply": "generate_default_reply",
         },
     )
-    workflow.add_edge("generate_negative_reply", END)
-    workflow.add_edge("generate_positive_reply", END)
-    workflow.add_edge("generate_default_reply", END)
+    workflow.add_edge("generate_negative_reply", "validate_reply")
+    workflow.add_edge("generate_positive_reply", "validate_reply")
+    workflow.add_edge("generate_default_reply", "validate_reply")
+    workflow.add_edge("validate_reply", END)
 
     return workflow.compile(checkpointer=checkpointer)
