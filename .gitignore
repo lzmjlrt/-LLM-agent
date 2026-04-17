@@ -25,3 +25,4 @@ replt_agent.py
 #!.github/copilot-instructions.md
 project/
 *.pdf
+AGENT_INTERVIEW_QA.md

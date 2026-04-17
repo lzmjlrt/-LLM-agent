@@ -69,7 +69,7 @@ def initialize_agent_runtime(
     except (OSError, RuntimeError) as err:
         raise AgentInitializationError("初始化失败：知识库构建或加载失败。", str(err)) from err
 
-    tools = create_rag_tool(vector_store)
+    tools = create_rag_tool(vector_store, query_planner_llm=llm)
     checkpointer = InMemorySaver()
     return create_graph(llm, tools, checkpointer=checkpointer)
 
