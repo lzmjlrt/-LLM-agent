@@ -1,4 +1,5 @@
 import unittest
+from unittest.mock import patch
 
 from agent.errors import AgentRuntimeError
 from agent.services.chat_service import invoke_agent
@@ -18,6 +19,7 @@ class FakeApp:
 
 
 class TestChatService(unittest.TestCase):
+    @patch("agent.services.invoke_service.config.SEMANTIC_CACHE_ENABLED", False)
     def test_invoke_agent_returns_reply_and_request_id(self):
         app = FakeApp(response={"finally_reply": "测试回复"})
         reply, request_id = invoke_agent(app, "你好", "thread-test")
@@ -25,6 +27,7 @@ class TestChatService(unittest.TestCase):
         self.assertTrue(request_id)
         self.assertEqual(app.last_config, {"configurable": {"thread_id": "thread-test"}})
 
+    @patch("agent.services.invoke_service.config.SEMANTIC_CACHE_ENABLED", False)
     def test_invoke_agent_wraps_runtime_error(self):
         app = FakeApp(error=ValueError("boom"))
         with self.assertRaises(AgentRuntimeError):

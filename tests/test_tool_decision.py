@@ -1,12 +1,19 @@
 import unittest
 
-from agent.workflow.nodes import (
+from agent.workflow.constants import (
+    INTENT_ADDITIONAL_QUERY,
+    INTENT_GENERAL_QUERY,
+    INTENT_GRAPHRAG_QUERY,
+)
+from agent.workflow.intent_rules import (
     classify_query_intent,
     detect_additional_info_need,
     decide_tool_usage,
     detect_human_review_need,
     detect_usage_question,
     normalize_quality_for_meaningful_query,
+)
+from agent.workflow.reply_policies import (
     validate_generated_reply,
 )
 
@@ -52,16 +59,16 @@ class TestToolDecision(unittest.TestCase):
 
     def test_classify_query_intent_for_usage_question(self):
         intent, reason = classify_query_intent("这款剃须刀怎么充电？")
-        self.assertEqual(intent, "graphrag-query")
+        self.assertEqual(intent, INTENT_GRAPHRAG_QUERY)
         self.assertTrue("咨询" in reason or "关键词" in reason)
 
     def test_classify_query_intent_for_vague_question(self):
         intent, _reason = classify_query_intent("这个有问题怎么办？")
-        self.assertEqual(intent, "additional-query")
+        self.assertEqual(intent, INTENT_ADDITIONAL_QUERY)
 
     def test_classify_query_intent_for_out_of_scope_question(self):
         intent, reason = classify_query_intent("今天上海天气怎么样？")
-        self.assertEqual(intent, "general-query")
+        self.assertEqual(intent, INTENT_GENERAL_QUERY)
         self.assertIn("超出", reason)
 
     def test_detect_additional_info_need(self):
@@ -72,7 +79,7 @@ class TestToolDecision(unittest.TestCase):
         valid, reason, fallback = validate_generated_reply(
             original_review="你这个剃须刀怎么充电？",
             generated_reply="亲，非常感谢您的认可与支持！您的满意是我们不断前行的动力，期待您的再次光临！",
-            query_intent="graphrag-query",
+            query_intent=INTENT_GRAPHRAG_QUERY,
             needs_additional_info=False,
             out_of_scope=False,
         )
@@ -84,7 +91,7 @@ class TestToolDecision(unittest.TestCase):
         valid, reason, final_reply = validate_generated_reply(
             original_review="你这个剃须刀怎么充电？",
             generated_reply="您可以先确认电量指示灯状态，再按说明书步骤连接充电线进行充电。",
-            query_intent="graphrag-query",
+            query_intent=INTENT_GRAPHRAG_QUERY,
             needs_additional_info=False,
             out_of_scope=False,
         )
